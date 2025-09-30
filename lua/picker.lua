@@ -1432,7 +1432,7 @@ end
 
 ------------------------------------------------------------------------
 
-function M.pick_cmd(cmd)
+function M.pick_cmdarg(cmd)
     M.pick(cmd .. ":", vim.fn.getcompletion(cmd .. " ", "cmdline"), function(item)
         if item then
             vim.schedule_wrap(vim.cmd[cmd])(item)
@@ -1445,7 +1445,7 @@ vim.api.nvim_create_user_command("Pick", function(cmd)
     if func and type(func) == 'function' and debug.getinfo(func).nparams == 0 then
         func()
     else
-        M.pick_cmd(#cmd.fargs == 0 and "Pick" or cmd.args)
+        M.pick_cmdarg(#cmd.fargs == 0 and "Pick" or cmd.args)
     end
 end, {
     nargs = '?',
