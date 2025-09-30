@@ -36,13 +36,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
 });
 ```
 
-# commands
-```text
-:Pick                   -- open picker of pickers
-:Pick <name>            -- open specific picker
-:PickCmd <cmd>          -- open picker for cmd argument
-                        --- exxamples:
-                        ---    PickCmd colorscheme
-                        ---    PickCmd highlight
-                        ---    PickCmd MasonInstall
+# `Pick` command
+
+- without any arguments it opens picker of pickers
+- `Pick <name>` openes named picker. ex: `Pick file`
+- `Pick <cmd>`
+  - opens picker for cmd argument. see below examples
+  - ex: `Pick colorscheme` `Pick hi` `Pick MasonInstall`
 ```

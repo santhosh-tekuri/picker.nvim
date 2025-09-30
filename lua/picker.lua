@@ -1435,22 +1435,17 @@ end
 function M.pick_cmd(cmd)
     M.pick(cmd .. ":", vim.fn.getcompletion(cmd .. " ", "cmdline"), function(item)
         if item then
-            ---@diagnostic disable-next-line: param-type-mismatch
-            vim.schedule_wrap(vim.cmd)(cmd .. " " .. item)
+            vim.schedule_wrap(vim.cmd[cmd])(item)
         end
     end)
 end
 
 vim.api.nvim_create_user_command("Pick", function(cmd)
-    if #cmd.fargs == 0 then
-        M.pick_cmd("Pick")
+    local func = #cmd.fargs ~= 0 and M["pick_" .. cmd.args]
+    if func and type(func) == 'function' and debug.getinfo(func).nparams == 0 then
+        func()
     else
-        local func = M["pick_" .. cmd.args]
-        if func and type(func) == 'function' and debug.getinfo(func).nparams == 0 then
-            func()
-        else
-            vim.api.nvim_echo({ { string.format("No picker named %q", cmd.args), "ErrorMsg" } }, false, {})
-        end
+        M.pick_cmd(#cmd.fargs == 0 and "Pick" or cmd.args)
     end
 end, {
     nargs = '?',
@@ -1467,13 +1462,6 @@ end, {
         table.sort(candidates)
         return candidates
     end
-})
-
-vim.api.nvim_create_user_command("PickCmd", function(cmd)
-    M.pick_cmd(cmd.args)
-end, {
-    nargs = 1,
-    desc = "Pick CommandArg",
 })
 
 return M
