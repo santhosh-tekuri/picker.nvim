@@ -324,7 +324,7 @@ function M.pick(prompt, src, onclose, opts)
             vim.api.nvim_set_option_value("cursorline", true, { scope = "local", win = pwin })
             vim.api.nvim_win_call(pwin, function()
                 vim.api.nvim_win_set_cursor(pwin, { item.lnum, item.col or 0 })
-                if item.col then
+                if item.col and item.end_col >= item.col then
                     local pbuf = vim.api.nvim_win_get_buf(pwin)
                     vim.api.nvim_buf_set_extmark(pbuf, ns, item.lnum - 1, item.col - 1, {
                         end_col = item.end_col - 1,
