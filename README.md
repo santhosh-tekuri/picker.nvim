@@ -101,3 +101,32 @@ text$           ending with 'text'
 
 You may want to configure highlight groups explicitly depending on your colorscheme.  
 you can see the list [here](https://github.com/santhosh-tekuri/picker.nvim/blob/main/lua/picker.lua#L3)
+
+## Undo Picker
+
+- current seq prefixed with `>`
+- current seq is preselected
+- preview shows diff with prev undo seq
+- `<a-p>` toggle the preview to show diff with current buf
+
+## Grep Picker
+
+- needs `ripgrep`
+- live mode. can be toggled with `<c-g>`
+- smart-case enabled
+- accepts `rg` flags in input. note that flag and its value
+  must in in same word ex: `-g=**/dir/**`
+- by default searches in current working directory. you can
+  specify it using `--path=some/dir`
+- any error messages from `rg` are displayed to user
+
+following are some handy flags that are worth remembering:
+
+```
+-l pattern          # show just filenames
+-F pattern          # treat pattern as literal string
+-g=*.zig            # search in files with given extension
+-g=**/xxx/***       # search in directory named xxx anywhere
+-g=!**/xxx/***      # don't search in directory named xxx anywhere
+-s pattern          # case-sensitive search
+```
