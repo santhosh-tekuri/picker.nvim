@@ -1,3 +1,5 @@
+<img width="4204" height="2664" alt="image" src="https://github.com/user-attachments/assets/f7f33d94-e243-4a87-8bd8-b9e332d53947" />
+
 ## Plugin ID
 
 ```text
