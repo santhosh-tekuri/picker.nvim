@@ -411,6 +411,15 @@ function M.pick(prompt, src, onclose, opts)
             vim.api.nvim_buf_delete(errbuf, { force = true })
             errbuf = nil
         end
+        if opts.select then
+            if opts.select > shmax then
+                if opts.select - 1 + shmax <= #sitems then
+                    sskip = opts.select - 1
+                else
+                    sskip = #sitems - shmax
+                end
+            end
+        end
         local iter = vim.iter(sitems):skip(sskip):take(shmax)
         local lines = tolines(iter, opts)
         vim.api.nvim_buf_clear_namespace(sbuf, ns, 0, -1)
@@ -438,7 +447,7 @@ function M.pick(prompt, src, onclose, opts)
         vim.api.nvim_set_option_value("scrolloff", 0, { scope = "local", win = swin })
         vim.api.nvim_set_option_value("winhighlight", "FloatBorder:NormalFloat", { scope = "local", win = swin })
         if opts.select then
-            vim.api.nvim_win_set_cursor(swin, { opts.select, 0 })
+            vim.api.nvim_win_set_cursor(swin, { opts.select - sskip, 0 })
             opts.select = nil
         end
         if opts["add_highlights"] then
