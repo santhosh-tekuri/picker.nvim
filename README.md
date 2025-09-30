@@ -38,5 +38,5 @@ commands:
 ```text
 :Pick                   -- open picker of pickers
 :Pick <name>            -- open specific picker
-:PickCmd <cmd>          -- open picker for cmd argument
+:PickCmd <cmd>          -- open picker for cmd argument. ex: PickCmd colorscheme
 ```
