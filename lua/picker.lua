@@ -1476,30 +1476,4 @@ end, {
     desc = "Pick CommandArg",
 })
 
-function M.setup()
-    vim.ui.select = M.select
-    vim.keymap.set('n', '<leader>f', M.pick_file)
-    vim.keymap.set('n', '<leader>b', M.pick_buffer)
-    vim.keymap.set('n', '<leader>h', M.pick_help)
-    vim.keymap.set('n', '<leader>/', M.pick_grep)
-    vim.keymap.set('n', '<leader>u', M.pick_undo)
-    vim.api.nvim_create_autocmd('LspAttach', {
-        group = vim.api.nvim_create_augroup('LspPickers', {}),
-        callback = function(ev)
-            local function opts(desc)
-                return { buffer = ev.buf, desc = desc }
-            end
-            vim.keymap.set('n', 'gd', M.pick_definition, opts("Goto definition"))
-            vim.keymap.set('n', 'gD', M.pick_declaration, opts("Goto declaration"))
-            vim.keymap.set('n', 'gy', M.pick_type_definition, opts("Goto type definition"))
-            vim.keymap.set('n', 'gi', M.pick_implementation, opts("Goto implementation"))
-            vim.keymap.set('n', '<leader>r', M.pick_reference, opts("Goto reference"))
-            vim.keymap.set('n', '<leader>s', M.pick_document_symbol, opts("Open symbol picker"))
-            vim.keymap.set('n', '<leader>S', M.pick_workspace_symbol, opts("Open workspace symbol picker"))
-            vim.keymap.set('n', '<leader>d', M.pick_document_diagnostic, opts("Open diagnostic picker"))
-            vim.keymap.set('n', '<leader>D', M.pick_workspace_diagnostic, opts("Open workspace diagnostic picker"))
-        end,
-    });
-end
-
 return M
