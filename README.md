@@ -67,3 +67,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
 <c-w>           toggle wrap for preview
 <c-k>           clear input
 ```
+
+## Search Syntax
+
+accepts multiplse search terms separated with whitespace
+
+```text
+text            exact 'text'
+^text           starting with 'text'
+text$           ending with 'text'
+!term           negage match
+```
