@@ -40,6 +40,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 });
 ```
 
+by default `<c-q>` open quickfix list. You may want to change this behavior.  
+say you want to open trouble quickfix window
+
+```lua
+require("picker").after_qflist = function()
+    -- do what you want here
+end
+```
+
 ## `Pick` command
 
 - without any arguments it opens picker of pickers

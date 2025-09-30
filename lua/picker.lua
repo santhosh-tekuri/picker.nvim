@@ -737,6 +737,10 @@ end
 
 ------------------------------------------------------------------------
 
+function M.after_qflist()
+    vim.cmd.copen()
+end
+
 local function read_lines(pipe, on_line, tick)
     local queue, qfirst, qlast = {}, 0, -1
     local line = nil
@@ -932,7 +936,7 @@ function M.qfentry.open(item, opts)
     if item ~= nil then
         if opts["qflist"] then
             vim.fn.setqflist(item)
-            vim.cmd.copen()
+            M.after_qflist()
         else
             vim.cmd("normal! m'")
             opts["open"](item.bufnr or item.filename)
@@ -996,7 +1000,7 @@ local function edit(item, opts)
             vim.fn.setqflist(vim.tbl_map(function(file)
                 return { filename = file, text = file }
             end, item))
-            vim.cmd.copen()
+            M.after_qflist()
         else
             opts["open"](item)
         end
