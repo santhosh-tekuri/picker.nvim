@@ -130,3 +130,18 @@ following are some handy flags that are worth remembering:
 -g=!**/xxx/***      # don't search in directory named xxx anywhere
 -s pattern          # case-sensitive search
 ```
+
+## File Picker
+
+- has default filter to exclude hidden files
+- toggle filter with `<c-h>`
+
+## LSP Pickers
+
+- has default filter to show only items from current working directory
+- toggle filter with `<c-h>`
+
+## QFItem Picker
+
+- to chose an item from quickfix list
+- current item is preselected
