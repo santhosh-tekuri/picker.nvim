@@ -63,7 +63,10 @@ end
 ```text
 <esc>           exit picker
 <c-c>           cancel background search
+
+<c-h>           toggle filter
 <c-g>           toggle live mode
+<c-w>           toggle wrap for preview
 
 <cr>            accept selected item
 <c-s>           open selected item in horizontal split
@@ -78,7 +81,8 @@ end
 <c-f>           scroll preview forward
 <c-b>           scroll preview backward
 
-<c-w>           toggle wrap for preview
+<c-a>           go to start of input
+<c-e>           go to end of input
 <c-k>           clear input
 ```
 
