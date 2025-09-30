@@ -7,6 +7,8 @@ santhosh-tekuri/picker.nvim
 https://github.com/santhosh-tekuri/picker.nvim
 ```
 
+you may want to use my [quickfix plugin](https://github.com/santhosh-tekuri/quickfix.nvim) to make quickfix look similar to the list in above screenshot
+
 ## Sample Configuration
 
 there is no `setup` function
