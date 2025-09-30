@@ -83,5 +83,5 @@ text$           ending with 'text'
 
 ## Highlight Groups
 
-You may want to configure Highlight groups explicitly depending on colorschemes.  
+You may want to configure highlight groups explicitly depending on your colorscheme.  
 you can see the list [here](https://github.com/santhosh-tekuri/picker.nvim/blob/main/lua/picker.lua#L3)
