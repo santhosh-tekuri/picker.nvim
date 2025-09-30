@@ -870,7 +870,7 @@ function M.qfentry.add_highlights(item, line, add_highlight)
             hl_group = "qfLineNr",
             strict = false,
         })
-        if item.type then
+        if item.type and #item.type > 0 then
             add_highlight(k, {
                 end_col = #line,
                 hl_group = typeHilights[item.type],
@@ -931,6 +931,36 @@ function M.qfentry.open(item, opts)
             vim.cmd("normal! zz")
         end
     end
+end
+
+------------------------------------------------------------------------
+
+function M.pick_qfitem_of(id)
+    if id == 0 then
+        vim.api.nvim_echo({ { "No Quickfix List found", "ErrorMsg" } }, false, {})
+        return
+    end
+    local items = vim.fn.getqflist({ id = id, items = 1 }).items
+    for i, item in ipairs(items) do
+        item.idx = i
+    end
+    local function open(item, opts)
+        if item then
+            vim.fn.setqflist({}, 'a', { id = id, idx = item.idx })
+            M.qfentry.open(item, opts)
+        end
+    end
+    M.pick("QuickfixItem:", items, open, {
+        text_cb = M.qfentry.text,
+        add_highlights = M.qfentry.add_highlights,
+        preview = M.qfentry.preview,
+        select = vim.fn.getqflist({ id = id, idx = 0 }).idx,
+        fill_width = true,
+    })
+end
+
+function M.pick_qfitem()
+    M.pick_qfitem_of(vim.fn.getqflist({ id = 0 }).id)
 end
 
 ------------------------------------------------------------------------
