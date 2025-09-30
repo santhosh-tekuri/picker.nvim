@@ -36,11 +36,34 @@ vim.api.nvim_create_autocmd('LspAttach', {
 });
 ```
 
-# `Pick` command
+## `Pick` command
 
 - without any arguments it opens picker of pickers
-- `Pick <name>` openes named picker. ex: `Pick file`
+- `Pick <name>` opens named picker. ex: `Pick file`
 - `Pick <cmd>`
-  - opens picker for cmd argument. see below examples
+  - opens picker for cmd argument
   - ex: `Pick colorscheme` `Pick hi` `Pick MasonInstall`
+
+## Keybindings
+
+```text
+<esc>           exit picker
+<c-c>           cancel background search
+<c-g>           toggle live mode
+
+<cr>            accept selected item
+<c-s>           open selected item in horizontal split
+<c-v>           open selected item in vertical split
+<c-t>           open selected item in new tab
+<c-n>           select next item. if no next item, selects first item
+<c-p>           select prev item. if no prev item, selects last item
+<c-q>           open quickfix list with all items
+
+<c-d>           scroll list down
+<c-u>           scroll list up
+<c-f>           scroll preview forward
+<c-b>           scroll preview backward
+
+<c-w>           toggle wrap for preview
+<c-k>           clear input
 ```
