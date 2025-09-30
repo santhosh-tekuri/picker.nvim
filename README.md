@@ -114,9 +114,10 @@ you can see the list [here](https://github.com/santhosh-tekuri/picker.nvim/blob/
 - needs `ripgrep`
 - live mode. can be toggled with `<c-g>`
 - smart-case enabled
-- accepts `rg` flags in input. note that flag and its value
-  must in in same word ex: `-g=**/dir/**`
-- to search for pattern starting with `-` say `-amount` use `-- -amount`
+- accepts `rg` flags in input
+  - flag and its value must in in same word ex: `-g=**/dir/**`
+  - flags must be before pattern
+  - to search for pattern starting with `-` say `-amount` use `-- -amount`
 - by default searches in current working directory. you can
   specify it using `--path=some/dir`
 - any error messages from `rg` are displayed to user
