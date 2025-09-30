@@ -135,6 +135,7 @@ following are some handy flags that are worth remembering:
 
 ## File Picker
 
+- needs 'fd' command
 - has default filter to exclude hidden files
 - toggle filter with `<c-h>`
 
