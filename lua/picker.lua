@@ -621,7 +621,7 @@ function M.pick(prompt, src, onclose, opts)
     local function scroll_preview(down)
         if pwin then
             vim.api.nvim_win_call(pwin, function()
-                vim.cmd("normal! " .. (down and "" or ""))
+                vim.cmd("normal! " .. math.floor(pconfig.height / 2) .. (down and "" or ""))
             end)
         end
     end
