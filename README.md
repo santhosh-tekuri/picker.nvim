@@ -80,3 +80,8 @@ text            exact 'text'
 text$           ending with 'text'
 !term           negate match
 ```
+
+## Highlight Groups
+
+You may want to configure Highlight groups explicitly depending on colorschemes.  
+you can see the list [here](https://github.com/santhosh-tekuri/picker.nvim/blob/main/lua/picker.lua#L3)
