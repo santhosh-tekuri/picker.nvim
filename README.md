@@ -78,5 +78,5 @@ accepts multiplse search terms separated with whitespace
 text            exact 'text'
 ^text           starting with 'text'
 text$           ending with 'text'
-!term           negage match
+!term           negate match
 ```
