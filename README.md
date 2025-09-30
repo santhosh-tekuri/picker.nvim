@@ -1,11 +1,13 @@
-plugin id:
+## Plugin ID
 
 ```text
 santhosh-tekuri/picker.nvim
 https://github.com/santhosh-tekuri/picker.nvim
 ```
 
-there is no `setup` function. following is sample configuration:
+## Sample Configuration
+
+there is no `setup` function
 
 ```lua
 local m = require("picker")
@@ -34,9 +36,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
 });
 ```
 
-commands:
+# commands
 ```text
 :Pick                   -- open picker of pickers
 :Pick <name>            -- open specific picker
-:PickCmd <cmd>          -- open picker for cmd argument. ex: PickCmd colorscheme
+:PickCmd <cmd>          -- open picker for cmd argument
+                        --- exxamples:
+                        ---    PickCmd colorscheme
+                        ---    PickCmd highlight
+                        ---    PickCmd MasonInstall
 ```
