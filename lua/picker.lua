@@ -741,9 +741,7 @@ end
 
 ------------------------------------------------------------------------
 
-function M.after_qflist()
-    vim.cmd.copen()
-end
+M.after_qflist = vim.cmd.copen
 
 local function read_lines(pipe, on_line, tick)
     local queue, qfirst, qlast = {}, 0, -1
