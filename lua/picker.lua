@@ -63,8 +63,18 @@ end
 
 local function matchfunc(query)
     local funcs, curmod = {}, nil
+    local function check_mod_exists()
+        if curmod then
+            if #funcs == 0 or funcs[#funcs][3] ~= curmod then
+                table.insert(funcs, { function()
+                    return {}
+                end, false, curmod })
+            end
+        end
+    end
     for word in query:gmatch("%S+") do
         if word:sub(1, 1) == "%" then
+            check_mod_exists()
             curmod = word:sub(2) ~= "%" and word:sub(2) or nil
             goto continue
         end
@@ -126,6 +136,7 @@ local function matchfunc(query)
         end
         ::continue::
     end
+    check_mod_exists()
     if #funcs == 0 then
         return nil
     end
