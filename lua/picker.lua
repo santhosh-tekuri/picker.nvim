@@ -113,8 +113,8 @@ local function matchfunc(query)
         if func then
             if inverse then
                 local f = func
-                func = function(txt)
-                    local p = f(txt)
+                func = function(txt, from, to)
+                    local p = f(txt, from, to)
                     return not p and {} or nil
                 end
             end
