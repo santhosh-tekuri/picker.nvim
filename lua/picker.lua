@@ -72,35 +72,42 @@ local function matchfunc(query)
         if word:sub(1, 1) == "^" and word:sub(-1) == "$" then
             local str = word:sub(2, -2)
             if #str > 0 then
-                func = function(txt)
-                    return txt == str and { 1, #txt } or nil
+                func = function(txt, from, to)
+                    if to - from + 1 ~= #str then
+                        return nil
+                    end
+                    local i, j = txt:find(str, from, true)
+                    return i == from and { i, j } or nil
                 end
             end
         elseif word:sub(1, 1) == "^" then
             local str = word:sub(2)
             if #str > 0 then
-                func = function(txt)
-                    local i, j = txt:find(str, 1, true)
-                    return i == 1 and { i, j } or nil
+                func = function(txt, from, to)
+                    if to - from + 1 < #str then
+                        return nil
+                    end
+                    local i, j = txt:find(str, from, true)
+                    return i == from and { i, j } or nil
                 end
             end
         elseif word:sub(-1) == "$" then
             local str = word:sub(1, -2)
             if #str > 0 then
-                func = function(txt)
-                    local from = #txt - #str + 1
-                    if from > 0 then
-                        local i, j = txt:find(str, from, true)
-                        return i == from and { i, j } or nil
+                func = function(txt, from, to)
+                    local start = to - #str + 1
+                    if start >= from then
+                        local i, j = txt:find(str, start, true)
+                        return i == start and { i, j } or nil
                     end
                     return nil
                 end
             end
         elseif #word > 0 then
             local str = word
-            func = function(txt)
-                local i, j = txt:find(str, 1, true)
-                return i and { i, j } or nil
+            func = function(txt, from, to)
+                local i, j = txt:find(str, from, true)
+                return (i and j <= to) and { i, j } or nil
             end
         end
         if func then
@@ -121,13 +128,14 @@ local function matchfunc(query)
         local txtlower, pos = nil, {}
         for _, f in ipairs(funcs) do
             local t = txt
-            if f[2] then
+            local func, smartcase = unpack(f)
+            if smartcase then
                 if not txtlower then
                     txtlower = txt:lower()
                 end
                 t = txtlower
             end
-            local p = f[1](t)
+            local p = func(t, 1, #t)
             if not p then
                 return nil
             end
