@@ -1034,7 +1034,7 @@ end
 
 local function file_mods(item, line)
     local i, last_slash = line:find(".*/")
-    local j, dot = line:find(".*%.", i and last_slash or 1)
+    local j, dot = line:find(".*%.", i and last_slash + 1 or 1 + 1)
     return {
         h = i and { 1, last_slash - 1 } or nil,
         t = { i and last_slash + 1 or 1, #line },
