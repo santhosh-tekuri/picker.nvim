@@ -1109,7 +1109,7 @@ local function buffers()
     local cur = vim.fn.bufnr("%")
     local alt = vim.fn.bufnr("#")
     local items = {}
-    for _, bufinfo in ipairs(vim.fn.getbufinfo({ bufloaded = 1, buflisted = 1 })) do
+    for _, bufinfo in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
         if bufinfo.bufnr == alt then
             table.insert(items, 1, bufinfo.bufnr)
         elseif bufinfo.bufnr ~= cur then
