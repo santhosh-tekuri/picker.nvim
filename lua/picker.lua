@@ -61,6 +61,16 @@ local function tolines(iter, opts)
     return iter:map(func):map(replacenl):totable()
 end
 
+local function path_mods(path)
+    local i, last_slash = path:find(".*/")
+    local j, dot = path:find(".*%.", i and last_slash + 1 or 1 + 1)
+    return {
+        h = i and { 1, last_slash - 1 } or nil,
+        t = { i and last_slash + 1 or 1, #path },
+        e = j and { dot + 1, #path } or nil,
+    }
+end
+
 local function matchfunc(query)
     local funcs, curmod = {}, nil
     local function check_mod_exists()
@@ -154,7 +164,7 @@ local function matchfunc(query)
         return nil
     end
     return function(txt, item, getmods)
-        local pos, txtlower, mods = {}, nil, nil
+        local pos, txtlower, mods, pmods = {}, nil, nil, nil
         for _, f in ipairs(funcs) do
             local t = txt
             if f.smartcase then
@@ -170,10 +180,24 @@ local function matchfunc(query)
                 end
                 mods = mods or getmods(item, txt)
                 local m = mods[f.mod]
-                if not m then
-                    return nil
+                if m then
+                    from, to = unpack(m)
+                else
+                    if (f.mod == 'h' or f.mod == 't' or f.mod == 'e') and mods.p then
+                        if not pmods then
+                            pmods = path_mods(txt:sub(unpack(mods.p)))
+                        end
+                        m = pmods[f.mod]
+                        if m then
+                            from, to = unpack(m)
+                            from, to = from + mods.p[1] - 1, to + mods.p[1] - 1
+                        else
+                            return nil
+                        end
+                    else
+                        return nil
+                    end
                 end
-                from, to = unpack(m)
             end
             local p = f.func(t, from, to)
             if not p then
@@ -904,16 +928,6 @@ local function fileshorten(fname)
     return name
 end
 
-local function path_mods(path)
-    local i, last_slash = path:find(".*/")
-    local j, dot = path:find(".*%.", i and last_slash + 1 or 1 + 1)
-    return {
-        h = i and { 1, last_slash - 1 } or nil,
-        t = { i and last_slash + 1 or 1, #path },
-        e = j and { dot + 1, #path } or nil,
-    }
-end
-
 M.qfentry = {}
 
 function M.qfentry.text(item)
@@ -1054,7 +1068,7 @@ local function files(on_list, opts)
 end
 
 local function file_mods(item, line)
-    return path_mods(line)
+    return { p = { 1, #line } }
 end
 
 local function edit(item, opts)
