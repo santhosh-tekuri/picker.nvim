@@ -593,6 +593,7 @@ function M.pick(prompt, src, onclose, opts)
         local query = vim.fn.getline(1)
         local func = matchfunc(query)
         if not func then
+            showitems(items)
             return
         end
         cancelrun()
@@ -619,6 +620,7 @@ function M.pick(prompt, src, onclose, opts)
     local function runlive()
         local query = vim.fn.getline(1)
         if not query:find("%S") then
+            setitems({})
             return
         end
         local tick = runtick
