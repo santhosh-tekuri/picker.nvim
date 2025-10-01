@@ -69,7 +69,14 @@ local function matchfunc(query)
             word = word:sub(2)
         end
         local func
-        if word:sub(1, 1) == "^" then
+        if word:sub(1, 1) == "^" and word:sub(-1) == "$" then
+            local str = word:sub(2, -2)
+            if #str > 0 then
+                func = function(txt)
+                    return txt == str and { 1, #txt } or nil
+                end
+            end
+        elseif word:sub(1, 1) == "^" then
             local str = word:sub(2)
             if #str > 0 then
                 func = function(txt)
