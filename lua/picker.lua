@@ -950,45 +950,47 @@ local typeHilights = {
     H = 'DiagnosticSignHint',
 }
 
-function M.qfentry.add_highlights(item, line, add_highlight)
+function M.qfentry.mods(item, line)
     local i = line:find(":", 1, true)
-    if i then
-        add_highlight(0, {
-            end_col = i - 1,
-            hl_group = "qfFileName",
-            strict = false,
-        })
-        local k = assert(line:find(" ", i + 1, true))
-        add_highlight(i, {
-            end_col = k - 1,
-            hl_group = "qfLineNr",
-            strict = false,
-        })
-        if item.type and #item.type > 0 then
-            add_highlight(k, {
-                end_col = #line,
-                hl_group = typeHilights[item.type],
-                strict = false,
-            })
-        else
-            local matches = nil
-            if item.user_data and type(item.user_data) == 'table' then
-                matches = item.user_data.matches
-            end
-            if not matches then
-                if item.lnum and item.col and item.end_col then
-                    if item.lnum > 0 and item.col > 0 and item.end_col > 0 then
-                        matches = { { item.col, item.end_col } }
-                    end
+    if not i then
+        return { p = { 1, #line } }
+    end
+    local k = assert(line:find(" ", i + 1, true))
+    return {
+        p = { 1, i },
+        l = { i, k - 1 },
+        m = { k, #line },
+    }
+end
+
+function M.qfentry.add_highlights(item, line, add_highlight)
+    local mods = M.qfentry.mods(item, line)
+    add_highlight(mods.p, "qfFileName")
+    if not mods.l then
+        return
+    end
+    add_highlight(mods.l, 'qfLineNr')
+    if item.type and #item.type > 0 then
+        add_highlight(mods.m, typeHilights[item.type])
+    else
+        local k = mods.m[1]
+        local matches = nil
+        if item.user_data and type(item.user_data) == 'table' then
+            matches = item.user_data.matches
+        end
+        if not matches then
+            if item.lnum and item.col and item.end_col then
+                if item.lnum > 0 and item.col > 0 and item.end_col > 0 then
+                    matches = { { item.col, item.end_col } }
                 end
             end
-            for _, m in ipairs(matches or {}) do
-                add_highlight(k + m[1] - 1, {
-                    end_col = k + m[2],
-                    hl_group = "qfMatch",
-                    strict = false,
-                })
-            end
+        end
+        for _, m in ipairs(matches or {}) do
+            add_highlight(k + m[1] - 1, {
+                end_col = k + m[2],
+                hl_group = "qfMatch",
+                strict = false,
+            })
         end
     end
 end
@@ -1046,6 +1048,7 @@ function M.pick_qfitem_of(id)
     end
     M.pick("QuickfixItem:", items, open, {
         text_cb = M.qfentry.text,
+        mods = M.qfentry.mods,
         add_highlights = M.qfentry.add_highlights,
         preview = M.qfentry.preview,
         select = vim.fn.getqflist({ id = id, idx = 0 }).idx,
@@ -1225,6 +1228,7 @@ function M.pick_grep()
     end
     M.pick("Grep:", grep, M.qfentry.open, {
         text_cb = M.qfentry.text,
+        mods = M.qfentry.mods,
         live = true,
         add_highlights = M.qfentry.add_highlights,
         preview = M.qfentry.preview,
@@ -1267,6 +1271,7 @@ local function pick_lsp_item(prompt, func, filter)
     end
     M.pick(prompt, src, M.qfentry.open, {
         text_cb = M.qfentry.text,
+        mods = M.qfentry.mods,
         add_highlights = M.qfentry.add_highlights,
         preview = M.qfentry.preview,
         qflist = true,
@@ -1405,6 +1410,7 @@ local function pick_diagnostic(bufnr)
     end
     return M.pick(prompt, src, M.qfentry.open, {
         text_cb = M.qfentry.text,
+        mods = M.qfentry.mods,
         preview = M.qfentry.preview,
         add_highlights = M.qfentry.add_highlights,
         qflist = true,
