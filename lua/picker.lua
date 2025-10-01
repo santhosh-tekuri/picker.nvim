@@ -1366,28 +1366,29 @@ local function workspace_symbol_text(item)
     return string.format("%s %s%s", line, string.rep(" ", w), file)
 end
 
-local function worksapce_symbol_columns(item, line)
+local function worksapce_symbol_mods(item, line)
     local symblen = #item.text
     local sp = item.text:find(' ', 1, true)
     if sp then
         symblen = symblen - sp
     end
     return {
-        kind = { 1, line:find(" ", 1, true) - 1 },
-        text = { 15, 15 + symblen - 1 },
-        file = { line:find("%S", 15 + symblen, false), #line },
+        k = { 1, line:find(" ", 1, true) - 1 },
+        m = { 15, 15 + symblen - 1 },
+        p = { line:find("%S", 15 + symblen, false), #line },
     }
 end
 
 local function workspace_symbol_add_highlights(item, line, add_highlight)
-    local cols = worksapce_symbol_columns(item, line)
-    add_highlight(cols.kind, "PickerDim")
-    add_highlight(cols.file, "qfFileName")
+    local cols = worksapce_symbol_mods(item, line)
+    add_highlight(cols.k, "PickerDim")
+    add_highlight(cols.p, "qfFileName")
 end
 
 function M.pick_workspace_symbol()
     M.pick("WorkSymbol:", lsp_symbols, M.qfentry.open, {
         text_cb = workspace_symbol_text,
+        mods = worksapce_symbol_mods,
         preview = M.qfentry.preview,
         add_highlights = workspace_symbol_add_highlights,
         live = true,
