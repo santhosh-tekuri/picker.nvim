@@ -65,10 +65,12 @@ local function matchfunc(query)
     local funcs, curmod = {}, nil
     local function check_mod_exists()
         if curmod then
-            if #funcs == 0 or funcs[#funcs][3] ~= curmod then
-                table.insert(funcs, { function()
-                    return {}
-                end, false, curmod })
+            if #funcs == 0 or funcs[#funcs].mod ~= curmod then
+                table.insert(funcs, {
+                    func = function() return {} end,
+                    smartcase = false,
+                    mod = curmod
+                })
             end
         end
     end
@@ -132,7 +134,7 @@ local function matchfunc(query)
                     return not p and {} or nil
                 end
             end
-            table.insert(funcs, { func, not string.find(word, "%u"), curmod })
+            table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = curmod })
         end
         ::continue::
     end
@@ -144,26 +146,25 @@ local function matchfunc(query)
         local pos, txtlower, mods = {}, nil, nil
         for _, f in ipairs(funcs) do
             local t = txt
-            local func, smartcase, mod = unpack(f)
-            if smartcase then
+            if f.smartcase then
                 if not txtlower then
                     txtlower = txt:lower()
                 end
                 t = txtlower
             end
             local from, to = 1, #t
-            if mod then
+            if f.mod then
                 if not getmods then
                     return nil
                 end
                 mods = mods or getmods(item, txt)
-                local m = mods[mod]
+                local m = mods[f.mod]
                 if not m then
                     return nil
                 end
                 from, to = unpack(m)
             end
-            local p = func(t, from, to)
+            local p = f.func(t, from, to)
             if not p then
                 return nil
             end
