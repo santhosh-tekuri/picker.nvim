@@ -106,8 +106,8 @@ you can see the list [here](https://github.com/santhosh-tekuri/picker.nvim/blob/
 
 - current seq prefixed with `>`
 - current seq is preselected
-- preview shows diff with prev undo seq
-- `<a-p>` toggle the preview to show diff with current buf
+- preview shows `diff prev(selected) selected`
+- `<a-p>` toggle the preview to show `diff buffer selected`
 
 ## Grep Picker
 
