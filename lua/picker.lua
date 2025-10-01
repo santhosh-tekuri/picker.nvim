@@ -909,7 +909,7 @@ end
 ------------------------------------------------------------------------
 
 function M.select(items, opts, on_choice)
-    local prompt = opts and opts["prompt"] or ""
+    local prompt = opts and opts["prompt"] or "Select:"
     local popts = {}
     if opts and opts["format_item"] ~= nil then
         popts["text_cb"] = opts["format_item"]
