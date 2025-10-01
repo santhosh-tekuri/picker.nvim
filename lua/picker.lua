@@ -62,8 +62,12 @@ local function tolines(iter, opts)
 end
 
 local function matchfunc(query)
-    local funcs = {}
+    local funcs, curmod = {}, nil
     for word in query:gmatch("%S+") do
+        if word:sub(1, 1) == "%" then
+            curmod = word:sub(2) ~= "%" and word:sub(2) or nil
+            goto continue
+        end
         local inverse = word:sub(1, 1) == "!"
         if inverse then
             word = word:sub(2)
@@ -107,7 +111,7 @@ local function matchfunc(query)
             local str = word
             func = function(txt, from, to)
                 local i, j = txt:find(str, from, true)
-                return (i and j <= to) and { i, j } or nil
+                return (i and (j <= to)) and { i, j } or nil
             end
         end
         if func then
@@ -118,24 +122,37 @@ local function matchfunc(query)
                     return not p and {} or nil
                 end
             end
-            table.insert(funcs, { func, not string.find(word, "%u") })
+            table.insert(funcs, { func, not string.find(word, "%u"), curmod })
         end
+        ::continue::
     end
     if #funcs == 0 then
         return nil
     end
-    return function(txt)
-        local txtlower, pos = nil, {}
+    return function(txt, item, getmods)
+        local pos, txtlower, mods = {}, nil, nil
         for _, f in ipairs(funcs) do
             local t = txt
-            local func, smartcase = unpack(f)
+            local func, smartcase, mod = unpack(f)
             if smartcase then
                 if not txtlower then
                     txtlower = txt:lower()
                 end
                 t = txtlower
             end
-            local p = func(t, 1, #t)
+            local from, to = 1, #t
+            if mod then
+                if not getmods then
+                    return nil
+                end
+                mods = mods or getmods(item, txt)
+                local m = mods[mod]
+                if not m then
+                    return nil
+                end
+                from, to = unpack(m)
+            end
+            local p = func(t, from, to)
             if not p then
                 return nil
             end
@@ -163,7 +180,7 @@ local function match(items, func, opts, on_list)
         while from <= #items do
             local item = items[from]
             local txt = text_cb and text_cb(item) or item
-            local p = func(txt)
+            local p = func(txt, item, opts.mods)
             if p then
                 table.insert(mitems, item)
                 table.insert(pos, p)
@@ -1003,6 +1020,16 @@ local function files(on_list, opts)
     cmd_items("fd", args, nil, on_list)
 end
 
+local function file_mods(item, line)
+    local i, last_slash = line:find(".*/")
+    local j, dot = line:find(".*%.", i and last_slash or 1)
+    return {
+        h = i and { 1, last_slash - 1 } or nil,
+        t = { i and last_slash + 1 or 1, #line },
+        e = j and { dot + 1, #line } or nil,
+    }
+end
+
 local function edit(item, opts)
     if item then
         if vim.fn.executable("file") == 1 then
@@ -1029,7 +1056,7 @@ function M.pick_file()
         vim.api.nvim_echo({ { "fd is not available", "ErrorMsg" } }, false, {})
         return
     end
-    M.pick("File:", files, edit, { qflist = true, filter = { enabled = true } })
+    M.pick("File:", files, edit, { mods = file_mods, qflist = true, filter = { enabled = true } })
 end
 
 ------------------------------------------------------------------------
