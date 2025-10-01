@@ -893,6 +893,16 @@ local function fileshorten(fname)
     return name
 end
 
+local function path_mods(path)
+    local i, last_slash = path:find(".*/")
+    local j, dot = path:find(".*%.", i and last_slash + 1 or 1 + 1)
+    return {
+        h = i and { 1, last_slash - 1 } or nil,
+        t = { i and last_slash + 1 or 1, #path },
+        e = j and { dot + 1, #path } or nil,
+    }
+end
+
 M.qfentry = {}
 
 function M.qfentry.text(item)
@@ -1033,13 +1043,7 @@ local function files(on_list, opts)
 end
 
 local function file_mods(item, line)
-    local i, last_slash = line:find(".*/")
-    local j, dot = line:find(".*%.", i and last_slash + 1 or 1 + 1)
-    return {
-        h = i and { 1, last_slash - 1 } or nil,
-        t = { i and last_slash + 1 or 1, #line },
-        e = j and { dot + 1, #line } or nil,
-    }
+    return path_mods(line)
 end
 
 local function edit(item, opts)
