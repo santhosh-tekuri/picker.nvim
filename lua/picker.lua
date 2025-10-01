@@ -1403,8 +1403,7 @@ function M.pick_undo()
     vim.bo[tmp_buf].swapfile = false
     vim.fn.bufload(tmp_buf)
     vim.api.nvim_buf_call(tmp_buf, function()
-        ---@diagnostic disable-next-line: param-type-mismatch
-        pcall(vim.cmd, "silent rundo " .. tmp_undo)
+        pcall(vim.cmd --[[@as function]], "silent rundo " .. tmp_undo)
     end)
 
     local tree = undotree()
@@ -1454,8 +1453,7 @@ function M.pick_undo()
         end)
         vim.o.eventignore = ei
         local diff = vim.diff(table.concat(before, "\n") .. "\n", table.concat(assert(after), "\n") .. "\n",
-            { ctxlen = 4 })
-        ---@diagnostic disable-next-line: param-type-mismatch
+            { ctxlen = 4 }) --[[@as string]]
         vim.api.nvim_buf_set_lines(pbuf, 0, -1, false, vim.split(diff, "\n"))
         return { bufnr = pbuf }
     end
