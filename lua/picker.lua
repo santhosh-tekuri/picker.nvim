@@ -1233,12 +1233,17 @@ local function filter_symbol(item)
     return true
 end
 
-local function document_symbols(on_list)
-    return vim.lsp.buf.document_symbol({
+local function lsp_symbols(on_list, opts)
+    local list_opts = {
         on_list = function(result)
             on_list(vim.tbl_filter(filter_symbol, result.items))
         end
-    })
+    }
+    if opts.query then
+        return vim.lsp.buf.workspace_symbol(opts.query, list_opts)
+    else
+        return vim.lsp.buf.document_symbol(list_opts)
+    end
 end
 
 local function document_symbol_text(item)
@@ -1259,18 +1264,10 @@ local function document_symbol_add_highlights(_item, line, add_highlight)
 end
 
 function M.pick_document_symbol()
-    M.pick("DocSymbol:", document_symbols, M.qfentry.open, {
+    M.pick("DocSymbol:", lsp_symbols, M.qfentry.open, {
         text_cb = document_symbol_text,
         preview = M.qfentry.preview,
         add_highlights = document_symbol_add_highlights,
-    })
-end
-
-local function workspace_symbols(on_list, opts)
-    return vim.lsp.buf.workspace_symbol(opts.query, {
-        on_list = function(result)
-            on_list(vim.tbl_filter(filter_symbol, result.items))
-        end
     })
 end
 
@@ -1306,7 +1303,7 @@ local function workspace_symbol_add_highlights(item, line, add_highlight)
 end
 
 function M.pick_workspace_symbol()
-    M.pick("WorkSymbol:", workspace_symbols, M.qfentry.open, {
+    M.pick("WorkSymbol:", lsp_symbols, M.qfentry.open, {
         text_cb = workspace_symbol_text,
         preview = M.qfentry.preview,
         add_highlights = workspace_symbol_add_highlights,
