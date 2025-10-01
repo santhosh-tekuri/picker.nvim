@@ -1070,7 +1070,7 @@ local function files(on_list, opts)
     cmd_items("fd", args, nil, on_list)
 end
 
-local function file_mods(item, line)
+local function file_mods(_item, line)
     return { p = { 1, #line } }
 end
 
@@ -1343,17 +1343,26 @@ local function document_symbol_text(item)
     return string.format("%-80s %13s", text, item["kind"])
 end
 
+local function document_symbol_mods(item, line)
+    local symblen = #item.text
+    local sp = item.text:find(' ', 1, true)
+    if sp then
+        symblen = symblen - sp
+    end
+    return {
+        m = { 1, symblen },
+        k = { #line - symblen - 1, #line },
+    }
+end
+
 local function document_symbol_add_highlights(_item, line, add_highlight)
-    add_highlight(#line - 13, {
-        end_col = #line,
-        hl_group = "PickerDim",
-        strict = false,
-    })
+    add_highlight({ #line - 13, #line }, "PickerDim")
 end
 
 function M.pick_document_symbol()
     M.pick("DocSymbol:", lsp_symbols, M.qfentry.open, {
         text_cb = document_symbol_text,
+        mods = document_symbol_mods,
         preview = M.qfentry.preview,
         add_highlights = document_symbol_add_highlights,
     })
