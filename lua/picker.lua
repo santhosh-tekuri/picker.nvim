@@ -510,8 +510,8 @@ function M.pick(prompt, src, onclose, opts)
             for _, line in ipairs(lines) do
                 w = math.max(w, #line)
             end
+            w = w + 1
         end
-        w = w + 1
         sconfig = vim.tbl_extend("force", sconfig, {
             width = w,
             height = ht,
