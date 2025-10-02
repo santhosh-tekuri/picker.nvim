@@ -108,74 +108,75 @@ local function matchfunc(query)
                     check_mod_exists()
                     curmod = mod ~= "%" and mod or nil
                 end
-                goto continue
+                word = nil
             end
         end
-        local func
-        if word:sub(1, 1) == "=" then
-            local str = word:sub(2)
-            if #str > 0 then
-                func = function(txt, from, to)
-                    if to - from + 1 ~= #str then
+        if word then
+            local func
+            if word:sub(1, 1) == "=" then
+                local str = word:sub(2)
+                if #str > 0 then
+                    func = function(txt, from, to)
+                        if to - from + 1 ~= #str then
+                            return nil
+                        end
+                        local i, j = txt:find(str, from, true)
+                        return i == from and { i, j } or nil
+                    end
+                end
+            elseif word:sub(1, 1) == "^" and word:sub(-1) == "$" then
+                local str = word:sub(2, -2)
+                if #str > 0 then
+                    func = function(txt, from, to)
+                        if to - from + 1 ~= #str then
+                            return nil
+                        end
+                        local i, j = txt:find(str, from, true)
+                        return i == from and { i, j } or nil
+                    end
+                end
+            elseif word:sub(1, 1) == "^" then
+                local str = word:sub(2)
+                if #str > 0 then
+                    func = function(txt, from, to)
+                        if to - from + 1 < #str then
+                            return nil
+                        end
+                        local i, j = txt:find(str, from, true)
+                        return i == from and { i, j } or nil
+                    end
+                end
+            elseif word:sub(-1) == "$" then
+                local str = word:sub(1, -2)
+                if #str > 0 then
+                    func = function(txt, from, to)
+                        local start = to - #str + 1
+                        if start >= from then
+                            local i, j = txt:find(str, start, true)
+                            return i == start and { i, j } or nil
+                        end
                         return nil
                     end
-                    local i, j = txt:find(str, from, true)
-                    return i == from and { i, j } or nil
                 end
-            end
-        elseif word:sub(1, 1) == "^" and word:sub(-1) == "$" then
-            local str = word:sub(2, -2)
-            if #str > 0 then
+            elseif #word > 0 then
+                local str = word
                 func = function(txt, from, to)
-                    if to - from + 1 ~= #str then
-                        return nil
-                    end
                     local i, j = txt:find(str, from, true)
-                    return i == from and { i, j } or nil
+                    return (i and (j <= to)) and { i, j } or nil
                 end
             end
-        elseif word:sub(1, 1) == "^" then
-            local str = word:sub(2)
-            if #str > 0 then
-                func = function(txt, from, to)
-                    if to - from + 1 < #str then
-                        return nil
+            if func then
+                if inverse then
+                    local f = func
+                    func = function(txt, from, to)
+                        local p = f(txt, from, to)
+                        return not p and {} or nil
                     end
-                    local i, j = txt:find(str, from, true)
-                    return i == from and { i, j } or nil
                 end
-            end
-        elseif word:sub(-1) == "$" then
-            local str = word:sub(1, -2)
-            if #str > 0 then
-                func = function(txt, from, to)
-                    local start = to - #str + 1
-                    if start >= from then
-                        local i, j = txt:find(str, start, true)
-                        return i == start and { i, j } or nil
-                    end
-                    return nil
-                end
-            end
-        elseif #word > 0 then
-            local str = word
-            func = function(txt, from, to)
-                local i, j = txt:find(str, from, true)
-                return (i and (j <= to)) and { i, j } or nil
+                table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = curmod })
+                modcnt = modcnt + 1
             end
         end
-        if func then
-            if inverse then
-                local f = func
-                func = function(txt, from, to)
-                    local p = f(txt, from, to)
-                    return not p and {} or nil
-                end
-            end
-            table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = curmod })
-            modcnt = modcnt + 1
-        end
-        ::continue::
     end
     check_mod_exists()
     if #funcs == 0 then
