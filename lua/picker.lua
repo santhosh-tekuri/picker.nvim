@@ -502,7 +502,7 @@ function M.pick(prompt, src, onclose, opts)
         vim.api.nvim_buf_delete(qbuf, {})
         vim.api.nvim_buf_delete(sbuf, {})
         if copts and sitems and #sitems > 0 then
-            onclose(copts["qflist"] and sitems or sitems[line], copts)
+            onclose((copts["qflist"] or copts["loclist"]) and sitems or sitems[line], copts)
         else
             onclose(nil, nil)
         end
@@ -756,6 +756,7 @@ function M.pick(prompt, src, onclose, opts)
     keymap("<tab>", function() end, {})
     if opts and opts["qflist"] then
         keymap("<c-q>", close, { { qflist = true } })
+        keymap("<a-q>", close, { { loclist = true } })
     end
     keymap("<cr>", close, { { open = openfunc("edit") } })
     keymap("<c-s>", close, { { open = openfunc("split") } })
@@ -865,6 +866,7 @@ end
 ------------------------------------------------------------------------
 
 M.after_qflist = vim.cmd.copen
+M.after_loclist = vim.cmd.lopen
 
 local function read_lines(pipe, on_line, tick)
     local queue, qfirst, qlast = {}, 0, -1
@@ -1070,6 +1072,9 @@ function M.qfentry.open(item, opts)
         if opts["qflist"] then
             vim.fn.setqflist(item)
             M.after_qflist()
+        elseif opts["loclist"] then
+            vim.fn.setloclist(0, item)
+            M.after_loclist()
         else
             vim.cmd("normal! m'")
             opts["open"](item.bufnr or item.filename)
@@ -1126,20 +1131,25 @@ end
 
 local function edit(item, opts)
     if item then
-        if vim.fn.executable("file") == 1 then
-            local mime = vim.fn.system({ "file", "-bL", "--mime", item })
-            if not mime:find("empty") and mime:find("binary") then
-                if vim.fn.confirm(("Do you want to open to open binary file %q"):format(item), "&Yes\n&No", 2) ~= 1 then
-                    return
-                end
-            end
-        end
         if opts["qflist"] then
             vim.fn.setqflist(vim.tbl_map(function(file)
                 return { filename = file, text = file }
             end, item))
             M.after_qflist()
+        elseif opts["loclist"] then
+            vim.fn.setloclist(0, vim.tbl_map(function(file)
+                return { filename = file, text = file }
+            end, item))
+            M.after_loclist()
         else
+            if vim.fn.executable("file") == 1 then
+                local mime = vim.fn.system({ "file", "-bL", "--mime", item })
+                if not mime:find("empty") and mime:find("binary") then
+                    if vim.fn.confirm(("Do you want to open to open binary file %q"):format(item), "&Yes\n&No", 2) ~= 1 then
+                        return
+                    end
+                end
+            end
             opts["open"](item)
         end
     end
