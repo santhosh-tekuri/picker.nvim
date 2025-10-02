@@ -204,18 +204,15 @@ local function matchfunc(query)
                         if m then
                             from, to = unpack(m)
                             from, to = from + mods.p[1] - 1, to + mods.p[1] - 1
-                        else
-                            if f.not_mod then
-                                goto continue
-                            end
-                            return nil
                         end
-                    else
-                        if f.not_mod then
-                            goto continue
-                        end
-                        return nil
                     end
+                end
+                if m then
+                    from, to = unpack(m)
+                elseif f.not_mod then
+                    goto continue
+                else
+                    return nil
                 end
             end
             local p = f.func(t, from, to)
