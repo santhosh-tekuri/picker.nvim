@@ -90,6 +90,7 @@ local function matchfunc(query)
         if inverse then
             word = word:sub(2)
         end
+        local singlemod
         if word:sub(1, 1) == "%" then
             local mod = word:sub(2)
             if #mod > 0 then
@@ -99,16 +100,26 @@ local function matchfunc(query)
                         mod = mod,
                         not_mod = true,
                     })
+                    word = nil
                 elseif mod:sub(1, 1):find("%u") then
                     table.insert(funcs, {
                         func = function() return {} end,
                         mod = mod,
                     })
+                    word = nil
                 else
-                    check_mod_exists()
-                    curmod = mod ~= "%" and mod or nil
+                    local colon = mod:find(":", 1, true)
+                    if colon then
+                        word = mod:sub(colon + 1)
+                        mod = mod:sub(1, colon - 1)
+                        singlemod = mod ~= "%" and mod or nil
+                        inverse = false
+                    else
+                        check_mod_exists()
+                        curmod = mod ~= "%" and mod or nil
+                        word = nil
+                    end
                 end
-                word = nil
             end
         end
         if word then
@@ -173,8 +184,10 @@ local function matchfunc(query)
                         return not p and {} or nil
                     end
                 end
-                table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = curmod })
-                modcnt = modcnt + 1
+                table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = singlemod or curmod })
+                if not singlemod then
+                    modcnt = modcnt + 1
+                end
             end
         end
     end
