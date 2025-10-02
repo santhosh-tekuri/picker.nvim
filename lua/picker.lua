@@ -178,7 +178,9 @@ local function matchfunc(query)
     end
     return function(txt, item, getmods)
         local pos, txtlower, mods, pmods = {}, nil, nil, nil
+        local string_mod = false
         for _, f in ipairs(funcs) do
+            string_mod = false
             local t = txt
             if f.smartcase then
                 if not txtlower then
@@ -205,7 +207,14 @@ local function matchfunc(query)
                     end
                 end
                 if m then
-                    from, to = unpack(m)
+                    if type(m) == "string" then
+                        t, from, to, string_mod = m, 1, #m, true
+                        if f.smartcase then
+                            t = t:lower()
+                        end
+                    else
+                        from, to = unpack(m)
+                    end
                 elseif f.not_mod then
                     goto continue
                 else
@@ -216,7 +225,7 @@ local function matchfunc(query)
             if not p then
                 return nil
             end
-            if #p > 0 then
+            if #p > 0 and not string_mod then
                 table.insert(pos, p)
             end
             ::continue::
@@ -972,10 +981,12 @@ function M.qfentry.mods(item, line)
         return { p = { 1, #line } }
     end
     local k = assert(line:find(" ", i + 1, true))
+    local hl = typeHilights[item.type]
     return {
         p = { 1, i },
         l = { i, k - 1 },
         m = { k, #line },
+        k = hl and hl:sub(1 + #"DiagnoticsSign") or nil,
     }
 end
 
