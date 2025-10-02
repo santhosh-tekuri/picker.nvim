@@ -72,10 +72,10 @@ local function path_mods(path)
 end
 
 local function matchfunc(query)
-    local funcs, curmod = {}, nil
+    local funcs, curmod, modcnt = {}, nil, 0
     local function check_mod_exists()
         if curmod then
-            if #funcs == 0 or funcs[#funcs].mod ~= curmod then
+            if modcnt == 0 then
                 table.insert(funcs, {
                     func = function() return {} end,
                     smartcase = false,
@@ -83,8 +83,20 @@ local function matchfunc(query)
                 })
             end
         end
+        modcnt = 0
     end
     for word in query:gmatch("%S+") do
+        if word:sub(1, 2) == "!%" then
+            local mod = word:sub(3)
+            if #mod > 0 then
+                table.insert(funcs, {
+                    func = function() return nil end,
+                    mod = mod,
+                    not_mod = true,
+                })
+            end
+            goto continue
+        end
         if word:sub(1, 1) == "%" then
             check_mod_exists()
             curmod = word:sub(2) ~= "%" and word:sub(2) or nil
@@ -156,6 +168,7 @@ local function matchfunc(query)
                 end
             end
             table.insert(funcs, { func = func, smartcase = not string.find(word, "%u"), mod = curmod })
+            modcnt = modcnt + 1
         end
         ::continue::
     end
@@ -192,9 +205,15 @@ local function matchfunc(query)
                             from, to = unpack(m)
                             from, to = from + mods.p[1] - 1, to + mods.p[1] - 1
                         else
+                            if f.not_mod then
+                                goto continue
+                            end
                             return nil
                         end
                     else
+                        if f.not_mod then
+                            goto continue
+                        end
                         return nil
                     end
                 end
@@ -206,6 +225,7 @@ local function matchfunc(query)
             if #p > 0 then
                 table.insert(pos, p)
             end
+            ::continue::
         end
         return pos
     end
