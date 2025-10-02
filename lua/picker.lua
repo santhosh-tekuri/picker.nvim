@@ -1086,7 +1086,7 @@ end
 
 ------------------------------------------------------------------------
 
-function M.pick_qfitem_of(id)
+function M.pick_qfitem_from(id)
     if id == 0 then
         vim.api.nvim_echo({ { "No Quickfix List found", "ErrorMsg" } }, false, {})
         return
@@ -1112,7 +1112,7 @@ function M.pick_qfitem_of(id)
 end
 
 function M.pick_qfitem()
-    M.pick_qfitem_of(vim.fn.getqflist({ id = 0 }).id)
+    M.pick_qfitem_from(vim.fn.getqflist({ id = 0 }).id)
 end
 
 ------------------------------------------------------------------------
