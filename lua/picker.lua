@@ -336,7 +336,7 @@ function M.pick(prompt, src, onclose, opts)
             vim.api.nvim_echo({ { "No " .. name .. " to select", "WarningMsg" } }, false, {})
             onclose(nil, {})
             return
-        elseif #items == 1 then
+        elseif opts.auto_confirm and #items == 1 then
             onclose(items[1], { open = openfunc("edit") })
             return
         end
@@ -1181,7 +1181,7 @@ end
 
 function M.pick_buffer()
     local function preview(item) return { bufnr = item } end
-    M.pick("Buffer:", buffers(), edit, { text_cb = bufname, preview = preview })
+    M.pick("Buffer:", buffers(), edit, { auto_confirm = true, text_cb = bufname, preview = preview })
 end
 
 ------------------------------------------------------------------------
@@ -1330,6 +1330,7 @@ local function pick_lsp_item(prompt, func, filter)
         })
     end
     M.pick(prompt, src, M.qfentry.open, {
+        auto_confirm = true,
         text_cb = M.qfentry.text,
         mods = M.qfentry.mods,
         add_highlights = M.qfentry.add_highlights,
