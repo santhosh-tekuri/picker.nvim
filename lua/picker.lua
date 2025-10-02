@@ -86,33 +86,30 @@ local function matchfunc(query)
         modcnt = 0
     end
     for word in query:gmatch("%S+") do
-        if word:sub(1, 2) == "!%" then
-            local mod = word:sub(3)
-            if #mod > 0 then
-                table.insert(funcs, {
-                    func = function() return nil end,
-                    mod = mod,
-                    not_mod = true,
-                })
-            end
-            goto continue
-        end
-        if word:sub(1, 1) == "%" then
-            local mod = word:sub(2)
-            if mod:sub(1, 1):find("%u") then
-                table.insert(funcs, {
-                    func = function() return {} end,
-                    mod = mod,
-                })
-                goto continue
-            end
-            check_mod_exists()
-            curmod = mod ~= "%" and mod or nil
-            goto continue
-        end
         local inverse = word:sub(1, 1) == "!"
         if inverse then
             word = word:sub(2)
+        end
+        if word:sub(1, 1) == "%" then
+            local mod = word:sub(2)
+            if #mod > 0 then
+                if inverse then
+                    table.insert(funcs, {
+                        func = function() return nil end,
+                        mod = mod,
+                        not_mod = true,
+                    })
+                elseif mod:sub(1, 1):find("%u") then
+                    table.insert(funcs, {
+                        func = function() return {} end,
+                        mod = mod,
+                    })
+                else
+                    check_mod_exists()
+                    curmod = mod ~= "%" and mod or nil
+                end
+                goto continue
+            end
         end
         local func
         if word:sub(1, 1) == "=" then
