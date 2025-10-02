@@ -193,17 +193,14 @@ local function matchfunc(query)
                 end
                 mods = mods or getmods(item, txt)
                 local m = mods[f.mod]
-                if m then
-                    from, to = unpack(m)
-                else
+                if not m then
                     if (f.mod == 'h' or f.mod == 't' or f.mod == 'e') and mods.p then
                         if not pmods then
                             pmods = path_mods(txt:sub(unpack(mods.p)))
                         end
-                        m = pmods[f.mod]
-                        if m then
-                            from, to = unpack(m)
-                            from, to = from + mods.p[1] - 1, to + mods.p[1] - 1
+                        local temp = pmods[f.mod]
+                        if temp then
+                            m = { temp[1] + mods.p[1] - 1, temp[2] + mods.p[1] - 1 }
                         end
                     end
                 end
