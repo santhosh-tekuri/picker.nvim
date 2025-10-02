@@ -88,12 +88,14 @@ end
 
 ## Search Syntax
 
-accepts multiplse search terms separated with whitespace
+accepts multiplse search terms separated with whitespace  
+smartcase always enabled
 
 ```text
-text            exact 'text'
+text            containing 'text'
 ^text           starting with 'text'
 text$           ending with 'text'
+=text           item is 'text'; shortcut for ^text$
 !term           negate match
 ```
 
