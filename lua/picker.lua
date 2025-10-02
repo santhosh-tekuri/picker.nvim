@@ -98,8 +98,16 @@ local function matchfunc(query)
             goto continue
         end
         if word:sub(1, 1) == "%" then
+            local mod = word:sub(2)
+            if mod:sub(1, 1):find("%u") then
+                table.insert(funcs, {
+                    func = function() return {} end,
+                    mod = mod,
+                })
+                goto continue
+            end
             check_mod_exists()
-            curmod = word:sub(2) ~= "%" and word:sub(2) or nil
+            curmod = mod ~= "%" and mod or nil
             goto continue
         end
         local inverse = word:sub(1, 1) == "!"
@@ -982,12 +990,16 @@ function M.qfentry.mods(item, line)
     end
     local k = assert(line:find(" ", i + 1, true))
     local hl = typeHilights[item.type]
-    return {
+    local mods = {
         p = { 1, i },
         l = { i, k - 1 },
         m = { k, #line },
         k = hl and hl:sub(1 + #"DiagnoticsSign") or nil,
     }
+    if item.type then
+        mods[item.type] = ""
+    end
+    return mods
 end
 
 function M.qfentry.add_highlights(item, line, add_highlight)
@@ -1335,6 +1347,15 @@ local exclude_symbols = {
     { "Constant", "Variable", "Object", "Number", "String", "Boolean", "Array" },
     lua = { "Package" },
 }
+local symbol_mods = {
+    ["Struct"] = "S",
+    ["Class"] = "C",
+    ["Interface"] = "I",
+    ["Enum"] = "E",
+    ["Method"] = "M",
+    ["Function"] = "F",
+    ["Variable"] = "V",
+}
 
 local function filter_symbol(item)
     local kind = item["kind"]
@@ -1376,10 +1397,15 @@ local function document_symbol_mods(item, line)
     if sp then
         symblen = symblen - sp
     end
-    return {
+    local mods = {
         m = { 1, symblen },
         k = { #line - symblen - 1, #line },
     }
+    local m = symbol_mods[item.kind]
+    if m then
+        mods[m] = ""
+    end
+    return mods
 end
 
 local function document_symbol_add_highlights(_item, line, add_highlight)
@@ -1413,11 +1439,16 @@ local function worksapce_symbol_mods(item, line)
     if sp then
         symblen = symblen - sp
     end
-    return {
+    local mods = {
         k = { 1, line:find(" ", 1, true) - 1 },
         m = { 15, 15 + symblen - 1 },
         p = { line:find("%S", 15 + symblen, false), #line },
     }
+    local m = symbol_mods[item.kind]
+    if m then
+        mods[m] = ""
+    end
+    return mods
 end
 
 local function workspace_symbol_add_highlights(item, line, add_highlight)
