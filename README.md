@@ -140,6 +140,7 @@ there are three types of mods.
 ### 3. boolean mods:
 - their search target is a boolean value
 - the mod starts with capital letter
+- they do not accept any search term
 - they are standalone mods i.e they don't accept search term
   - for example: just simply type `%E` to filter errors
 
@@ -156,8 +157,8 @@ some tips:
    - for example: `!%e` to fitler items without file extension
 
 ### stickyness:
+- without colon after mod, all following terms target the same mod
 - non boolean mods become sticky if there is no search term
-- sticky means all following search terms use the the mods target
 
 for example `%h /abc/ def/$` filters all items are are in directory `def` any where inside directory `abc`
 
