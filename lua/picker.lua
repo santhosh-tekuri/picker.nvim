@@ -36,6 +36,18 @@ local function openfunc(how)
                     return
                 end
             end
+            if vim.wo.winfixbuf then
+                for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                    if not vim.wo[win].winfixbuf then
+                        vim.api.nvim_set_current_win(win)
+                        break
+                    end
+                end
+            end
+            if vim.wo.winfixbuf then
+                vim.api.nvim_echo({ { "all windows in tab are fixed", "ErrorMsg" } }, false, {})
+                return
+            end
             vim.cmd("buffer " .. item)
         elseif how == "split" then
             vim.cmd("sbuffer " .. item)
