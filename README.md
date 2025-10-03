@@ -75,6 +75,7 @@ end
 <c-n>           select next item. if no next item, selects first item
 <c-p>           select prev item. if no prev item, selects last item
 <c-q>           open quickfix list with all items
+<a-q>           open location list with all items
 
 <c-d>           scroll list down
 <c-u>           scroll list up
@@ -98,6 +99,73 @@ text$           ending with 'text'
 =text           item is 'text'; shortcut for ^text$
 !term           negate match
 ```
+
+## Search Modifiers (mods)
+
+mods change the target of search. mod starts with `%`
+
+- `%mod:term` search for `term` within the target defined `mod`  
+- `%mod:` to just filter the items containing non empty mod
+  - for example `%e:`
+
+there are three types of mods.
+
+1. range mods:
+- they target a range/portion of text in visible text
+
+```plain
+%p      filepath
+%h      head of filepath
+%t      tail of filepath i.e filename
+%e      extension of file
+%m      main juicy part
+        - for symbol picker: it is symbol name
+        - for grep filter: it is the fileline
+        - for qf like filters: it is item's text
+%k      kind
+        - for symbol piker: it is symbol kind
+%%      entire visible text
+```
+
+2. string mods:
+- they target a text that is not visible
+
+```text
+%k      kind
+        - for diagnostic picker: it is severity
+```
+
+3. boolean mods:
+- their search target is a boolean value
+- the mod starts with capital letter
+- they are standalone mods i.e they don't accept search term
+  - for example: just simply type `%E` to filter errors
+
+```text
+%E      is error diagnostic
+%W      is warning diagnostic
+%H      is hint diagnostic
+%I      is info diagnostic
+```
+
+some tips:
+- '!%mod' filters the items without mod
+   - for example: `!%e` to fitler items without file extension
+
+sticky mods:
+- non boolean mods become sticky if there is no search term
+- sticky means all following search terms use the the mods target
+
+for example `%h /abc/ def/^` filters all items are are in directory `def` any where inside directory `abc`
+
+you can reset the target to while line using `%%`  
+for example `%h term1 term2 %% term3 term4`, here `term1` and `term2` arget targeted for `%h` whereas `term3` targets entire line
+
+`!%mod` is never sticky
+
+`%e: term1 term1` here `term1` and `term2` target entire line, and it also filter out items with extension
+
+`%e` just the modifier fitlers out items with extension in this example
 
 ## Highlight Groups
 
