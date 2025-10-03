@@ -105,7 +105,7 @@ text$           ending with 'text'
 mods change the target of search. mod starts with `%`
 
 - `%mod:term` search for `term` within the target defined `mod`  
-- `%mod:` to just filter the items containing non empty mod
+- `%mod:` to just filter the items containing target mod
   - for example `%e:`
 
 there are three types of mods.
@@ -159,7 +159,7 @@ some tips:
 - non boolean mods become sticky if there is no search term
 - sticky means all following search terms use the the mods target
 
-for example `%h /abc/ def/^` filters all items are are in directory `def` any where inside directory `abc`
+for example `%h /abc/ def/$` filters all items are are in directory `def` any where inside directory `abc`
 
 you can reset the target to while line using `%%`  
 for example `%h term1 term2 %% term3 term4`, here `term1` and `term2` are targeted for `%h` whereas `term3` targets entire line
