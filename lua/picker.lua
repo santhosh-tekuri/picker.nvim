@@ -112,8 +112,16 @@ local function matchfunc(query)
                     if colon then
                         word = mod:sub(colon + 1)
                         mod = mod:sub(1, colon - 1)
-                        singlemod = mod ~= "%" and mod or nil
-                        inverse = false
+                        if #word == 0 then
+                            table.insert(funcs, {
+                                func = function() return {} end,
+                                mod = mod,
+                            })
+                            word = nil
+                        else
+                            singlemod = mod ~= "%" and mod or nil
+                            inverse = false
+                        end
                     else
                         check_mod_exists()
                         curmod = mod ~= "%" and mod or nil
