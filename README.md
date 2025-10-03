@@ -110,8 +110,9 @@ mods change the target of search. mod starts with `%`
 
 there are three types of mods.
 
-1. range mods:
+### 1. range mods:
 - they target a range/portion of text in visible text
+- you can see the matched portion highlighted in the item
 
 ```plain
 %p      filepath
@@ -127,15 +128,16 @@ there are three types of mods.
 %%      entire visible text
 ```
 
-2. string mods:
+### 2. string mods:
 - they target a text that is not visible
+- since the target text is not visible, there is no highlights associated with it
 
 ```text
 %k      kind
         - for diagnostic picker: it is severity
 ```
 
-3. boolean mods:
+### 3. boolean mods:
 - their search target is a boolean value
 - the mod starts with capital letter
 - they are standalone mods i.e they don't accept search term
@@ -149,17 +151,18 @@ there are three types of mods.
 ```
 
 some tips:
+- `%e:=js` filters are files with extension `js`
 - '!%mod' filters the items without mod
    - for example: `!%e` to fitler items without file extension
 
-sticky mods:
+### stickyness:
 - non boolean mods become sticky if there is no search term
 - sticky means all following search terms use the the mods target
 
 for example `%h /abc/ def/^` filters all items are are in directory `def` any where inside directory `abc`
 
 you can reset the target to while line using `%%`  
-for example `%h term1 term2 %% term3 term4`, here `term1` and `term2` arget targeted for `%h` whereas `term3` targets entire line
+for example `%h term1 term2 %% term3 term4`, here `term1` and `term2` are targeted for `%h` whereas `term3` targets entire line
 
 `!%mod` is never sticky
 
