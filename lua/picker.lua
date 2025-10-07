@@ -1,12 +1,16 @@
 local M = {}
 
-vim.api.nvim_set_hl(0, "qfFileName", { link = "Directory", default = true })
-vim.api.nvim_set_hl(0, "qfLineNr", { link = "LineNr", default = true })
-vim.api.nvim_set_hl(0, "qfMatch", { link = "Removed", default = true })
-vim.api.nvim_set_hl(0, "PickerMatch", { link = "Special", default = true })
-vim.api.nvim_set_hl(0, "PickerDim", { link = "Comment", default = true })
-vim.api.nvim_set_hl(0, "PickerPreviewMatch", { link = "CurSearch", default = true })
-vim.api.nvim_set_hl(0, "PickerUndoSave", { link = "Added", default = true })
+local function define_hl()
+    vim.api.nvim_set_hl(0, "qfFileName", { link = "Directory", default = true })
+    vim.api.nvim_set_hl(0, "qfLineNr", { link = "LineNr", default = true })
+    vim.api.nvim_set_hl(0, "qfMatch", { link = "Removed", default = true })
+    vim.api.nvim_set_hl(0, "PickerMatch", { link = "Special", default = true })
+    vim.api.nvim_set_hl(0, "PickerDim", { link = "Comment", default = true })
+    vim.api.nvim_set_hl(0, "PickerPreviewMatch", { link = "CurSearch", default = true })
+    vim.api.nvim_set_hl(0, "PickerUndoSave", { link = "Added", default = true })
+end
+define_hl()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = define_hl })
 
 local function bufname(bufnr)
     local name = vim.fn.bufname(bufnr)
