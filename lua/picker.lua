@@ -947,7 +947,7 @@ local function read_lines(pipe, on_line, tick)
     end)
 end
 
-local function cmd_items(path, args, line2item, on_list, partial)
+function M.cmd_items(path, args, line2item, on_list, partial)
     on_list = vim.schedule_wrap(on_list)
     local stdio = { nil, vim.uv.new_pipe(), vim.uv.new_pipe() }
     local items, errors = {}, {}
@@ -1146,7 +1146,7 @@ local function files(on_list, opts)
     if not opts.filter then
         table.insert(args, "--hidden")
     end
-    cmd_items("fd", args, nil, on_list)
+    M.cmd_items("fd", args, nil, on_list)
 end
 
 local function file_mods(_item, line)
@@ -1302,7 +1302,7 @@ local function grep(on_list, opts)
     end
     table.insert(args, query)
     vim.list_extend(args, paths)
-    return cmd_items("rg", args, grep_line2item, on_list, true)
+    return M.cmd_items("rg", args, grep_line2item, on_list, true)
 end
 
 function M.pick_grep()
