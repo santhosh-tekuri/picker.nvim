@@ -1675,6 +1675,45 @@ end
 
 ------------------------------------------------------------------------
 
+function M.pick_git_commit(on_close)
+    local function line2item(line)
+        local sp = line:find(" ", 1, true)
+        local nl = line:find("\0", sp + 1, true)
+        return {
+            hash = line:sub(1, sp - 1),
+            author = line:sub(sp + 1, nl - 1),
+            msg = line:sub(nl + 1)
+        }
+    end
+    local function commits(on_list, _opts)
+        return M.cmd_items("git", { "--no-pager", "log", "--pretty=format:%h %aN%x00%s" }, line2item, on_list, false)
+    end
+    local function text_cb(item)
+        local w = vim.o.columns - #item.hash - 1 - #item.msg - 1 - #item.author - 3
+        return ("%s %s %s%s"):format(item.hash, item.msg, string.rep(" ", w), item.author)
+    end
+    local function mods(item, line)
+        return {
+            h = { 1, #item.hash },
+            m = { #item.hash + 2, #item.hash + 1 + #item.msg },
+            a = { #line - #item.author, #line },
+        }
+    end
+    local function add_highlights(item, line, add_highlight)
+        local cols = mods(item, line)
+        add_highlight(cols.h, "PickerDim")
+        add_highlight(cols.a, "PickerDim")
+    end
+    M.pick("Commit:", commits, on_close, {
+        text_cb = text_cb,
+        mods = mods,
+        add_highlights = add_highlights,
+        fill_width = true,
+    })
+end
+
+------------------------------------------------------------------------
+
 function M.pick_cmdarg(cmd)
     M.pick(cmd .. ":", vim.fn.getcompletion(cmd .. " ", "cmdline"), function(item)
         if item then
