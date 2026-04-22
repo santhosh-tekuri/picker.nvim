@@ -277,7 +277,7 @@ local function matchfunc(query)
     end
 end
 
-local function match(items, func, opts, on_list)
+local function match(items, from, func, opts, on_list)
     local text_cb = opts.text_cb
     if not text_cb and opts.key then
         local key = opts.key
@@ -286,7 +286,7 @@ local function match(items, func, opts, on_list)
         end
     end
 
-    local from, cancel = 1, false
+    local cancel = false
     local function run()
         local start = vim.uv.hrtime()
         local mitems, pos = {}, {}
@@ -342,18 +342,7 @@ function M.pick(prompt, src, onclose, opts)
         end
     end
 
-    if not opts["live"] then
-        if type(src) == "function" then
-            local srcopts = {}
-            if opts.filter and not opts.filter.func then
-                srcopts.filter = opts.filter.enabled
-            end
-            src(function(result)
-                opts["src"] = src
-                M.pick(prompt, result, onclose, opts)
-            end, srcopts)
-            return
-        end
+    if not opts["live"] and type(src) ~= "function" then
         setitems(src)
         if #items == 0 then
             local name = prompt:sub(-1) == ':' and prompt:sub(1, -2) or prompt
@@ -407,7 +396,7 @@ function M.pick(prompt, src, onclose, opts)
         focusable = false,
         zindex = 50,
     }
-    local runtick, runcancel = 0, nil
+    local runtick, runcancel, curmatch = 0, nil, nil
     local ns = vim.api.nvim_create_namespace("pickermatch")
     local function update_status()
         local vtxt = {}
@@ -655,18 +644,25 @@ function M.pick(prompt, src, onclose, opts)
         show_preview()
     end
 
-    local function runmatch()
+    local function setmatch()
         local query = vim.fn.getline(1)
-        local func = matchfunc(query)
-        if not func then
+        curmatch = matchfunc(query)
+        if curmatch then
+            showitems({}, {})
+        else
             showitems(items)
+        end
+    end
+
+    local function runmatch(from)
+        from = from or 1
+        cancelrun()
+        if not curmatch then
             return
         end
-        cancelrun()
         local tick = runtick
         runcancel = function() end
-        showitems({}, {})
-        runcancel = match(items, func, opts, function(result, ropts)
+        runcancel = match(items, from, curmatch, opts, function(result, ropts)
             if tick == runtick then
                 ropts = ropts or {}
                 if ropts.done or not ropts.partial then
@@ -711,6 +707,42 @@ function M.pick(prompt, src, onclose, opts)
                 end
             end, { query = query })
         end)
+    end
+
+    local cancelsrc = nil
+    local function runsrc()
+        vim.print(vim.in_fast_event())
+        setitems({})
+        showitems(items, nil)
+        local srcopts = {}
+        if opts.filter and not opts.filter.func then
+            srcopts.filter = opts.filter.enabled
+        end
+        vim.api.nvim_buf_call(lspbuf, function()
+            cancelsrc = src(function(result, ropts)
+                ropts = ropts or {}
+                if ropts.done or not ropts.partial then
+                    cancelsrc = nil
+                end
+                local skip_sbuf = ropts.partial and sskip + shmax <= #sitems
+                local from = #items
+                setitems(result, ropts)
+                if not curmatch then
+                    showitems(items, nil, skip_sbuf)
+                elseif not runcancel then
+                    runmatch(from + 1)
+                end
+                if cancelsrc == nil and #items == 0 and ropts.errors and #ropts.errors > 0 then
+                    show_error(ropts.errors)
+                end
+                if ropts.partial then
+                    vim.cmd.redraw()
+                end
+            end, srcopts)
+        end)
+    end
+    if not opts["live"] and type(src) == "function" then
+        runsrc()
     end
 
     local function move(i)
@@ -831,15 +863,18 @@ function M.pick(prompt, src, onclose, opts)
                 if #query == 0 or opts.live then
                     showitems(items)
                 else
+                    setmatch()
                     runmatch()
                 end
             end
             if opts.filter.func then
                 refresh(ritems)
             else
-                opts.src(function(result)
-                    refresh(result)
-                end, { filter = opts.filter.enabled })
+                if cancelsrc then
+                    cancelsrc()
+                    cancelsrc = nil
+                end
+                runsrc()
             end
         end)
     end
@@ -881,6 +916,7 @@ function M.pick(prompt, src, onclose, opts)
             elseif opts.live then
                 timer = vim.fn.timer_start(250, runlive)
             else
+                setmatch()
                 timer = vim.fn.timer_start(#sitems > 400000 and 150 or 0, runmatch)
             end
         end
@@ -1146,7 +1182,7 @@ local function files(on_list, opts)
     if not opts.filter then
         table.insert(args, "--hidden")
     end
-    M.cmd_items("fd", args, nil, on_list)
+    M.cmd_items("fd", args, nil, on_list, true)
 end
 
 local function file_mods(_item, line)
@@ -1686,7 +1722,7 @@ function M.pick_git_commit(on_close)
         }
     end
     local function commits(on_list, _opts)
-        return M.cmd_items("git", { "--no-pager", "log", "--pretty=format:%h %aN%x00%s" }, line2item, on_list, false)
+        return M.cmd_items("git", { "--no-pager", "log", "--pretty=format:%h %aN%x00%s" }, line2item, on_list, true)
     end
     local function text_cb(item)
         local w = vim.o.columns - #item.hash - 1 - #item.msg - 1 - #item.author - 3
