@@ -711,7 +711,6 @@ function M.pick(prompt, src, onclose, opts)
 
     local cancelsrc = nil
     local function runsrc()
-        vim.print(vim.in_fast_event())
         setitems({})
         showitems(items, nil)
         local srcopts = {}
@@ -737,6 +736,9 @@ function M.pick(prompt, src, onclose, opts)
                 end
                 if ropts.partial then
                     vim.cmd.redraw()
+                end
+                if opts.auto_confirm and #sitems == 1 and not ropts.partial then
+                    close({ open = openfunc("edit") })
                 end
             end, srcopts)
         end)
