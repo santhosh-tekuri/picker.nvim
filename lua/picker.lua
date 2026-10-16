@@ -714,7 +714,7 @@ function M.pick(prompt, src, onclose, opts)
     local function runsrc()
         runtick = runtick + 1
         setitems({})
-        showitems(items, curmatch and {} or nil)
+        showitems(curmatch and {} or items, curmatch and {} or nil)
         local srcopts = {}
         if opts.filter and not opts.filter.func then
             srcopts.filter = opts.filter.enabled
