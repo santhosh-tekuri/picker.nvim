@@ -311,8 +311,7 @@ local function match(items, from, func, opts, on_list)
         end
         on_list({ mitems, pos }, { partial = true, done = true })
     end
-    run()
-    return function()
+    return run, function()
         cancel = true
     end
 end
@@ -661,8 +660,8 @@ function M.pick(prompt, src, onclose, opts)
             return
         end
         local tick = runtick
-        runcancel = function() end
-        runcancel = match(items, from, curmatch, opts, function(result, ropts)
+        local run
+        run, runcancel = match(items, from, curmatch, opts, function(result, ropts)
             if tick == runtick then
                 ropts = ropts or {}
                 if ropts.done or not ropts.partial then
@@ -677,6 +676,7 @@ function M.pick(prompt, src, onclose, opts)
                 end
             end
         end)
+        run()
     end
 
     local function runlive()
@@ -685,6 +685,7 @@ function M.pick(prompt, src, onclose, opts)
             setitems({})
             return
         end
+        runtick = runtick + 1
         local tick = runtick
         setitems({})
         showitems(items, nil)
@@ -711,8 +712,9 @@ function M.pick(prompt, src, onclose, opts)
 
     local cancelsrc = nil
     local function runsrc()
+        runtick = runtick + 1
         setitems({})
-        showitems(items, nil)
+        showitems(items, curmatch and {} or nil)
         local srcopts = {}
         if opts.filter and not opts.filter.func then
             srcopts.filter = opts.filter.enabled
@@ -914,7 +916,7 @@ function M.pick(prompt, src, onclose, opts)
                 timer = nil
             end
             if not vim.fn.getline(1):find("%S") then
-                showitems(items or {}, nil)
+                setmatch()
             elseif opts.live then
                 timer = vim.fn.timer_start(250, runlive)
             else
