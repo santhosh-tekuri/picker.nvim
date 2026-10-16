@@ -919,7 +919,9 @@ function M.pick(prompt, src, onclose, opts)
                 timer = vim.fn.timer_start(250, runlive)
             else
                 setmatch()
-                timer = vim.fn.timer_start(#sitems > 400000 and 150 or 0, runmatch)
+                timer = vim.fn.timer_start(#sitems > 400000 and 150 or 0, function()
+                    runmatch()
+                end)
             end
         end
     })
