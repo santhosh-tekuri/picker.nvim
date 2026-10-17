@@ -1352,7 +1352,18 @@ function M.pick_grep()
         vim.api.nvim_echo({ { "ripgrep is not available", "ErrorMsg" } }, false, {})
         return
     end
-    M.pick("Grep:", grep, M.qfentry.open, {
+    local function open(item, opts)
+        M.qfentry.open(item, opts)
+        if item ~= nil then
+            -- register query string
+            local bufnr = item.bufnr or vim.fn.bufadd(item.filename)
+            local line = vim.api.nvim_buf_get_lines(bufnr, item.lnum - 1, item.lnum, false)[1]
+            local query = line:sub(item.col, item.end_col - 1)
+            vim.fn.setreg("/", query)
+            vim.fn.histadd("/", query)
+        end
+    end
+    M.pick("Grep:", grep, open, {
         text_cb = M.qfentry.text,
         mods = M.qfentry.mods,
         live = true,
